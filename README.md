@@ -13,6 +13,7 @@ discord_gpt/
   memory_store.py
   utils.py
 bot.py  # 실행 엔트리(래퍼)
+large_text.txt  # system prompt 기본 파일
 ```
 
 ## 준비물
@@ -54,6 +55,9 @@ LM_BASE_URL=http://127.0.0.1:1234/v1
 
 # 선택: 사용할 모델 이름 (기본값: llama-3.1-8b-instruct)
 LM_MODEL=llama-3.1-8b-instruct
+
+# 선택: system prompt 텍스트 파일 경로 (기본값: large_text.txt)
+SYSTEM_PROMPT_FILE=large_text.txt
 ```
 
 ## LM Studio 설정

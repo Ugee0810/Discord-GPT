@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import discord
 from discord import app_commands
 from dotenv import load_dotenv
@@ -13,6 +14,7 @@ DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 LM_BASE_URL = os.getenv("LM_BASE_URL", "http://127.0.0.1:1234/v1")
 LM_MODEL = os.getenv("LM_MODEL", "llama-3.1-8b-instruct")
 BOT_GUILD_ID = int(os.getenv("BOT_GUILD_ID", "0"))
+SYSTEM_PROMPT_FILE = os.getenv("SYSTEM_PROMPT_FILE", "large_text.txt")
 
 # ====== 봇 기본 설정 ======
 intents = discord.Intents.default()
@@ -22,14 +24,33 @@ tree = app_commands.CommandTree(client)
 lm = LMStudioClient(base_url=LM_BASE_URL, model=LM_MODEL)
 memory = MemoryStore(max_turns=8)
 
-DEFAULT_SYSTEM_PROMPT = (
+FALLBACK_SYSTEM_PROMPT = (
     "You are a helpful Discord assistant. "
     "Be concise, practical, and friendly. "
     "If user asks for code, provide runnable examples."
 )
 
+def load_system_prompt():
+    prompt_path = Path(SYSTEM_PROMPT_FILE)
+    candidates = [prompt_path]
+    if not prompt_path.is_absolute():
+        candidates.append(Path(__file__).resolve().parents[1] / prompt_path)
+
+    for candidate in candidates:
+        try:
+            if candidate.is_file():
+                text = candidate.read_text(encoding="utf-8").strip()
+                if text:
+                    return text, str(candidate)
+        except Exception:
+            continue
+
+    return FALLBACK_SYSTEM_PROMPT, None
+
+SYSTEM_PROMPT, SYSTEM_PROMPT_SOURCE = load_system_prompt()
+
 def make_messages(user_id: int, user_text: str):
-    system = {"role": "system", "content": DEFAULT_SYSTEM_PROMPT}
+    system = {"role": "system", "content": SYSTEM_PROMPT}
     history = memory.get_history(user_id)
     return [system] + history + [{"role": "user", "content": user_text}]
 
@@ -77,6 +98,10 @@ async def on_ready():
 
     print(f"Logged in as {client.user} (id={client.user.id})")
     print(f"LM Studio: {LM_BASE_URL} | model={LM_MODEL}")
+    if SYSTEM_PROMPT_SOURCE:
+        print(f"System prompt: loaded from {SYSTEM_PROMPT_SOURCE} ({len(SYSTEM_PROMPT)} chars)")
+    else:
+        print(f"System prompt: using fallback prompt ({len(SYSTEM_PROMPT)} chars)")
 
 def main():
     if not DISCORD_TOKEN:
