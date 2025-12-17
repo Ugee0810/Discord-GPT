@@ -2,6 +2,19 @@
 
 Discord 슬래시 명령(`/chat`)을 통해 로컬에서 실행 중인 LM Studio(OpenAI Compatible API) 모델과 대화하는 봇입니다.
 
+## 프로젝트 구조
+
+주요 코드는 `discord_gpt/` 패키지 아래에 있습니다.
+
+```
+discord_gpt/
+  bot.py
+  lmstudio_client.py
+  memory_store.py
+  utils.py
+bot.py  # 실행 엔트리(래퍼)
+```
+
 ## 준비물
 
 - Python 3.10+
@@ -28,7 +41,7 @@ pip install -r requirements.txt
 
 ## 환경 변수 설정 (.env)
 
-프로젝트 루트에 `.env` 파일을 만들고 아래 값을 설정합니다. (`.env`는 `.gitignore`로 커밋되지 않습니다.)
+프로젝트 루트에 `.env` 파일을 만들고 아래 값을 설정합니다. (`.env.example` 참고, `.env`는 `.gitignore`로 커밋되지 않습니다.)
 
 ```ini
 DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN
@@ -63,6 +76,9 @@ LM_MODEL=llama-3.1-8b-instruct
 가상환경을 활성화한 뒤 아래를 실행합니다.
 
 ```bash
+python -m discord_gpt
+
+# 또는 (동일 동작)
 python bot.py
 ```
 
@@ -80,4 +96,3 @@ python bot.py
 - LM Studio 호출이 실패하는 경우
   - LM Studio 서버가 실행 중인지, `LM_BASE_URL`이 올바른지 확인하세요.
   - 모델이 로드되어 있고 요청한 `LM_MODEL` 값이 유효한지 확인하세요.
-

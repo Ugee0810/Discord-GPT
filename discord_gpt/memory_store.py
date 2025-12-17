@@ -3,7 +3,7 @@ from collections import defaultdict, deque
 class MemoryStore:
     def __init__(self, max_turns: int = 8):
         self.max_turns = max_turns
-        self._store = defaultdict(lambda: deque(maxlen=max_turns * 2))  # user+assistant 쌍
+        self._store = defaultdict(lambda: deque(maxlen=max_turns * 2))  # user+assistant 기록
 
     def append_user(self, user_id: int, content: str):
         self._store[user_id].append({"role": "user", "content": content})
